@@ -105,6 +105,9 @@ resource "azurerm_virtual_machine" "tfjboxvm" {
   }
 }
 
+/*
+# strange behavior when print ip_address, `tfjboxip.*.ip_address` or `tfjboxip.ip_address`
 output "jumphost_ip" {
-  value = "${azurerm_public_ip.tfjboxip.*.ip_address}"
+  value = "${azurerm_public_ip.tfjboxip.*.ip_address}" #"${azurerm_public_ip.tfjboxip.ip_address}"
 }
+*/
