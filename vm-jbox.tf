@@ -26,7 +26,7 @@ resource "azurerm_public_ip" "tfjboxip" {
   name                         = "${var.prefix}-jboxip"
   location                     = "${var.location}"
   resource_group_name          = "${azurerm_resource_group.tfrg.name}"
-  public_ip_address_allocation = "dynamic"
+  public_ip_address_allocation = "static"
 
   tags {
     environment = "${var.tag}"
@@ -105,9 +105,8 @@ resource "azurerm_virtual_machine" "tfjboxvm" {
   }
 }
 
-/*
-# strange behavior when print ip_address, `tfjboxip.*.ip_address` or `tfjboxip.ip_address`
+# public_ip must be 'static' in order to print output properly 
 output "jumphost_ip" {
-  value = "${azurerm_public_ip.tfjboxip.*.ip_address}" #"${azurerm_public_ip.tfjboxip.ip_address}"
+  value = "${azurerm_public_ip.tfjboxip.ip_address}"
 }
-*/
+
