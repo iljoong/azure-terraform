@@ -74,3 +74,22 @@ resource "azurerm_route" "nat" {
   next_hop_type = "VirtualAppliance"
   next_hop_in_ip_address = "10.0.0.10"
 }
+
+# ASG
+resource "azurerm_application_security_group" "tfwebasg" {
+  name                = "tf-webasg"
+  location            = "${azurerm_resource_group.tfrg.location}"
+  resource_group_name = "${azurerm_resource_group.tfrg.name}"
+}
+
+resource "azurerm_application_security_group" "tfjboxasg" {
+  name                = "tf-jboxasg"
+  location            = "${azurerm_resource_group.tfrg.location}"
+  resource_group_name = "${azurerm_resource_group.tfrg.name}"
+}
+
+resource "azurerm_application_security_group" "tfappasg" {
+  name                = "tf-appasg"
+  location            = "${azurerm_resource_group.tfrg.location}"
+  resource_group_name = "${azurerm_resource_group.tfrg.name}"
+}

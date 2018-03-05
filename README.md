@@ -48,6 +48,7 @@ terraform apply
 4. Create multiple VMs
 5. Setting LB
 6. NAT instance - provision NAT instance, configure UDR and configure NAT using VM extension
+7. ASG - create and apply ASG
 
 For more information, refer [DOC.md](./DOC.md)
 

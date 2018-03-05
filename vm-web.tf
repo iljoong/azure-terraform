@@ -38,6 +38,8 @@ resource "azurerm_network_interface" "tfwebnic" {
 
     load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.tflbbackendpool.id}"]
     load_balancer_inbound_nat_rules_ids = ["${azurerm_lb_nat_rule.lbnatrule.*.id[count.index]}"]
+
+    application_security_group_ids = ["${azurerm_application_security_group.tfwebasg.id}"]
   }
 
   tags {

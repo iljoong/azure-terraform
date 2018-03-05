@@ -190,6 +190,48 @@ resource "azurerm_virtual_machine_extension" "vmext" {
 
 For NAT script, see [script](./script)
 
+## ASG
+
+ASG is supported from terraform `azure provider 1.2` and you can create ASG resource.
+
+Define ASG,
+
+```
+resource "azurerm_application_security_group" "tfappasg" {
+  name                = "tf-appasg"
+  location            = "${azurerm_resource_group.tfrg.location}"
+  resource_group_name = "${azurerm_resource_group.tfrg.name}"
+}
+```
+
+Add ASG to nics
+
+```
+resource "azurerm_network_interface" "tfwebnic" {
+  ...
+
+  ip_configuration {
+    ...
+    application_security_group_ids = ["${azurerm_application_security_group.tfwebasg.id}"]
+  }
+}
+
+```
+
+However, you *could not add ASG tag* in NSG rule. You need a [CLI](https://docs.microsoft.com/en-us/azure/virtual-network/create-network-security-group-preview) 
+to add asg in nsg rule like following,
+
+```
+az network nsg rule create -g demotf-rg \
+  --nsg-name demotf-appnsg \
+  --name allowebvm \
+  --priority 1100 --access "Allow" --direction "inbound" \
+  --destination-port-ranges 80 --protocol "TCP" \
+  --source-asgs "tf-webasg" \
+  --destination-asgs "tf-appasg"
+```
+This feature is expected to be added in [`azure provider 1.3`](https://github.com/terraform-providers/terraform-provider-azurerm/pull/925).
+
 ## Some issue
 
 For availableset, default 3 not working in some regions like Korea, use 2 instead.

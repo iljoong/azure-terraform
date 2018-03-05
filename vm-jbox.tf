@@ -45,6 +45,8 @@ resource "azurerm_network_interface" "tfjboxnic" {
     subnet_id                     = "${azurerm_subnet.tfjboxvnet.id}"
     private_ip_address_allocation = "dynamic"
     public_ip_address_id          = "${azurerm_public_ip.tfjboxip.id}"
+
+    application_security_group_ids = ["${azurerm_application_security_group.tfjboxasg.id}"]
   }
 
   tags {
