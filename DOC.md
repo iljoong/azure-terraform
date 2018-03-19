@@ -218,19 +218,22 @@ resource "azurerm_network_interface" "tfwebnic" {
 
 ```
 
-However, you *could not add ASG tag* in NSG rule. You need a [CLI](https://docs.microsoft.com/en-us/azure/virtual-network/create-network-security-group-preview) 
-to add asg in nsg rule like following,
+Lastly, add source/dest ASG tag in NSG rule. This feature is added in azure prover 1.3
 
 ```
-az network nsg rule create -g demotf-rg \
-  --nsg-name demotf-appnsg \
-  --name allowebvm \
-  --priority 1100 --access "Allow" --direction "inbound" \
-  --destination-port-ranges 80 --protocol "TCP" \
-  --source-asgs "tf-webasg" \
-  --destination-asgs "tf-appasg"
+  security_rule {
+    name                   = "HTTP_VNET"
+    priority               = 1000
+    direction              = "Inbound"
+    access                 = "Allow"
+    protocol               = "Tcp"
+    source_port_range      = "*"
+    destination_port_range = "80"
+
+    source_application_security_group_ids = ["${azurerm_application_security_group.tfwebasg.id}"]
+    destination_application_security_group_ids = ["${azurerm_application_security_group.tfappasg.id}"]
+  }
 ```
-This feature is expected to be added in [`azure provider 1.3`](https://github.com/terraform-providers/terraform-provider-azurerm/pull/925).
 
 ## Some issue
 

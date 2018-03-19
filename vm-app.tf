@@ -5,39 +5,40 @@ resource "azurerm_network_security_group" "tfappnsg" {
   resource_group_name = "${azurerm_resource_group.tfrg.name}"
 
   security_rule {
-      name                       = "DENY_VNET"
-      priority                   = 4096
-      direction                  = "Inbound"
-      access                     = "Deny"
-      protocol                   = "*"
-      source_port_range          = "*"
-      destination_port_range     = "*"
-      source_address_prefix      = "VirtualNetwork"
-      destination_address_prefix = "VirtualNetwork"
+    name                       = "DENY_VNET"
+    priority                   = 4096
+    direction                  = "Inbound"
+    access                     = "Deny"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "VirtualNetwork"
+    destination_address_prefix = "VirtualNetwork"
   }
 
   security_rule {
-      name                       = "SSH_VNET"
-      priority                   = 4000
-      direction                  = "Inbound"
-      access                     = "Allow"
-      protocol                   = "Tcp"
-      source_port_range          = "*"
-      destination_port_range     = "22"
-      source_address_prefix      = "VirtualNetwork"
-      destination_address_prefix = "*"
+    name                       = "SSH_VNET"
+    priority                   = 4000
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "VirtualNetwork"
+    destination_address_prefix = "*"
   }
 
   security_rule {
-      name                       = "HTTP_VNET"
-      priority                   = 1000
-      direction                  = "Inbound"
-      access                     = "Allow"
-      protocol                   = "Tcp"
-      source_port_range          = "*"
-      destination_port_range     = "80"
-      source_address_prefix      = "10.0.1.0/24" // replace with ASG later
-      destination_address_prefix = "*"
+    name                   = "HTTP_VNET"
+    priority               = 1000
+    direction              = "Inbound"
+    access                 = "Allow"
+    protocol               = "Tcp"
+    source_port_range      = "*"
+    destination_port_range = "80"
+
+    source_application_security_group_ids      = ["${azurerm_application_security_group.tfwebasg.id}"]
+    destination_application_security_group_ids = ["${azurerm_application_security_group.tfappasg.id}"]
   }
 
   tags {
@@ -54,11 +55,12 @@ resource "azurerm_network_interface" "tfappnic" {
   network_security_group_id = "${azurerm_network_security_group.tfappnsg.id}"
 
   ip_configuration {
-    name                          = "${var.prefix}-appnic-conf${count.index}"
-    subnet_id                     = "${azurerm_subnet.tfappvnet.id}"
+    name      = "${var.prefix}-appnic-conf${count.index}"
+    subnet_id = "${azurerm_subnet.tfappvnet.id}"
+
     #private_ip_address_allocation = "dynamic"
-    private_ip_address_allocation = "Static"
-    private_ip_address            = "${format("10.0.2.%d", count.index + 4)}"
+    private_ip_address_allocation  = "Static"
+    private_ip_address             = "${format("10.0.2.%d", count.index + 4)}"
     application_security_group_ids = ["${azurerm_application_security_group.tfappasg.id}"]
   }
 
@@ -72,7 +74,7 @@ resource "azurerm_availability_set" "tfappavset" {
   location                    = "${var.location}"
   resource_group_name         = "${azurerm_resource_group.tfrg.name}"
   managed                     = "true"
-  platform_fault_domain_count = 2  # default 3 cannot be used
+  platform_fault_domain_count = 2                                     # default 3 cannot be used
 
   tags {
     environment = "${var.tag}"
@@ -95,7 +97,7 @@ resource "azurerm_virtual_machine" "tfappvm" {
     create_option     = "FromImage"
     managed_disk_type = "Premium_LRS"
 
-    disk_size_gb      = "64" # increase default os disk
+    disk_size_gb = "64" # increase default os disk
   }
 
   /*
@@ -115,17 +117,14 @@ resource "azurerm_virtual_machine" "tfappvm" {
     sku       = "16.04.0-LTS"
     version   = "latest"
   }
-  
   os_profile {
-      computer_name  = "${format("tfappvm%03d", count.index + 1)}"
-      admin_username = "${var.admin_username}"
-      admin_password = "${var.admin_password}"
+    computer_name  = "${format("tfappvm%03d", count.index + 1)}"
+    admin_username = "${var.admin_username}"
+    admin_password = "${var.admin_password}"
   }
-
   os_profile_linux_config {
-      disable_password_authentication = false
+    disable_password_authentication = false
   }
-
   tags {
     environment = "${var.tag}"
   }
