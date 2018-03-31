@@ -17,6 +17,18 @@ resource "azurerm_network_security_group" "tfappnsg" {
   }
 
   security_rule {
+    name                       = "ALLOW_LB"
+    priority                   = 4095
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "AzureLoadBalancer"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
     name                       = "SSH_VNET"
     priority                   = 4000
     direction                  = "Inbound"
@@ -137,7 +149,7 @@ resource "azurerm_lb" "tfapplb" {
   name                = "${var.prefix}applb"
   location            = "${var.location}"
   resource_group_name = "${azurerm_resource_group.tfrg.name}"
-  sku                 = "Basic"                               # "Standard"
+  sku                 = "Standard"                            # "Standard"
 
   frontend_ip_configuration {
     name                          = "ApplbIPAddress"
