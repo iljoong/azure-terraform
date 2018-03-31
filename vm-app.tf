@@ -53,7 +53,7 @@ resource "azurerm_network_interface" "tfappnic" {
   location            = "${var.location}"
   resource_group_name = "${azurerm_resource_group.tfrg.name}"
 
-  //network_security_group_id = "${azurerm_network_security_group.tfappnsg.id}"
+  network_security_group_id = "${azurerm_network_security_group.tfappnsg.id}"
 
   ip_configuration {
     name      = "${var.prefix}-appnic-conf${count.index}"
@@ -66,6 +66,7 @@ resource "azurerm_network_interface" "tfappnic" {
 
     load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.tfapplbbackendpool.id}"]
   }
+
   tags {
     environment = "${var.tag}"
   }
