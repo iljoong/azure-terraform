@@ -48,11 +48,12 @@ resource "azurerm_network_security_group" "tfappnsg" {
 
 # Create network interface
 resource "azurerm_network_interface" "tfappnic" {
-  count                     = "${var.appcount}"
-  name                      = "${var.prefix}-appnic${count.index}"
-  location                  = "${var.location}"
-  resource_group_name       = "${azurerm_resource_group.tfrg.name}"
-  network_security_group_id = "${azurerm_network_security_group.tfappnsg.id}"
+  count               = "${var.appcount}"
+  name                = "${var.prefix}-appnic${count.index}"
+  location            = "${var.location}"
+  resource_group_name = "${azurerm_resource_group.tfrg.name}"
+
+  //network_security_group_id = "${azurerm_network_security_group.tfappnsg.id}"
 
   ip_configuration {
     name      = "${var.prefix}-appnic-conf${count.index}"
@@ -62,8 +63,9 @@ resource "azurerm_network_interface" "tfappnic" {
     private_ip_address_allocation  = "Static"
     private_ip_address             = "${format("10.0.2.%d", count.index + 4)}"
     application_security_group_ids = ["${azurerm_application_security_group.tfappasg.id}"]
-  }
 
+    load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.tfapplbbackendpool.id}"]
+  }
   tags {
     environment = "${var.tag}"
   }
@@ -128,4 +130,49 @@ resource "azurerm_virtual_machine" "tfappvm" {
   tags {
     environment = "${var.tag}"
   }
+}
+
+resource "azurerm_lb" "tfapplb" {
+  name                = "${var.prefix}applb"
+  location            = "${var.location}"
+  resource_group_name = "${azurerm_resource_group.tfrg.name}"
+  sku                 = "Basic"                               # "Standard"
+
+  frontend_ip_configuration {
+    name                          = "ApplbIPAddress"
+    subnet_id                     = "${azurerm_subnet.tfappvnet.id}"
+    private_ip_address            = "10.0.2.100"
+    private_ip_address_allocation = "Static"
+  }
+}
+
+resource "azurerm_lb_backend_address_pool" "tfapplbbackendpool" {
+  resource_group_name = "${azurerm_resource_group.tfrg.name}"
+  loadbalancer_id     = "${azurerm_lb.tfapplb.id}"
+  name                = "AppLBBackEndAddressPool"
+}
+
+resource "azurerm_lb_rule" "applb_rule" {
+  resource_group_name            = "${azurerm_resource_group.tfrg.name}"
+  loadbalancer_id                = "${azurerm_lb.tfapplb.id}"
+  name                           = "LBRule"
+  protocol                       = "tcp"
+  frontend_port                  = 80
+  backend_port                   = 80
+  frontend_ip_configuration_name = "ApplbIPAddress"
+  enable_floating_ip             = false
+  backend_address_pool_id        = "${azurerm_lb_backend_address_pool.tfapplbbackendpool.id}"
+  idle_timeout_in_minutes        = 5
+  probe_id                       = "${azurerm_lb_probe.applb_probe.id}"
+  depends_on                     = ["azurerm_lb_probe.applb_probe"]
+}
+
+resource "azurerm_lb_probe" "applb_probe" {
+  resource_group_name = "${azurerm_resource_group.tfrg.name}"
+  loadbalancer_id     = "${azurerm_lb.tfapplb.id}"
+  name                = "tcpProbe"
+  protocol            = "tcp"
+  port                = 80
+  interval_in_seconds = 5
+  number_of_probes    = 2
 }
