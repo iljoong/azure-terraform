@@ -145,11 +145,32 @@ resource "azurerm_virtual_machine" "tfappvm" {
   }
 }
 
+resource "azurerm_virtual_machine_extension" "appvmext" {
+  count                = "${var.appcount}"
+  name                 = "appvmext"
+  location             = "${var.location}"
+  resource_group_name  = "${azurerm_resource_group.tfrg.name}"
+  virtual_machine_name = "${azurerm_virtual_machine.tfappvm.*.name[count.index]}"
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.0"
+
+  settings = <<SETTINGS
+    {
+        "script": "IyEvYmluL3NoCgpzdWRvIGFwdC1nZXQgdXBkYXRlCnN1ZG8gYXB0LWdldCAteSBpbnN0YWxsIG5naW54Cg=="
+    }
+    SETTINGS
+
+  tags {
+    environment = "${var.tag}"
+  }
+}
+
 resource "azurerm_lb" "tfapplb" {
   name                = "${var.prefix}applb"
   location            = "${var.location}"
   resource_group_name = "${azurerm_resource_group.tfrg.name}"
-  sku                 = "Standard"                            # "Standard"
+  sku                 = "Basic"                               # "Standard"
 
   frontend_ip_configuration {
     name                          = "ApplbIPAddress"
