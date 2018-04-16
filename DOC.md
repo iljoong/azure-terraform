@@ -218,9 +218,33 @@ resource "azurerm_network_interface" "tfwebnic" {
 
 ```
 
-Lastly, add source/dest ASG tag in NSG rule. This feature is added in azure prover 1.3
+ASG rule feature added in azure prover 1.3. To allow only traffic between ASG tag you need to add both `DENY_VNET` and `ALLOW_LB` rules first then add ASG rule. `ALLOW_LB` rule is needed because LB won't work without health probing.
 
 ```
+  security_rule {
+    name                       = "DENY_VNET"
+    priority                   = 4096
+    direction                  = "Inbound"
+    access                     = "Deny"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "VirtualNetwork"
+    destination_address_prefix = "VirtualNetwork"
+  }
+
+  security_rule {
+    name                       = "ALLOW_LB"
+    priority                   = 4095
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "AzureLoadBalancer"
+    destination_address_prefix = "*"
+  }
+
   security_rule {
     name                   = "HTTP_VNET"
     priority               = 1000
