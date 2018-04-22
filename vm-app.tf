@@ -145,6 +145,7 @@ resource "azurerm_virtual_machine" "tfappvm" {
   }
 }
 
+/*
 resource "azurerm_virtual_machine_extension" "appvmext" {
   count                = "${var.appcount}"
   name                 = "appvmext"
@@ -165,6 +166,7 @@ resource "azurerm_virtual_machine_extension" "appvmext" {
     environment = "${var.tag}"
   }
 }
+*/
 
 resource "azurerm_lb" "tfapplb" {
   name                = "${var.prefix}applb"

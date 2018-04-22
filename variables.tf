@@ -55,6 +55,19 @@ variable "appcount" {
   default = 1
 }
 
+// to add dns = 1
+variable "dnscount" {
+  default = 0
+}
+
+variable "dnszone" {
+  default = "add_here"
+}
+
+variable "dnszonerg" {
+  default = "add_here"
+}
+
 variable "tag" {
   default = "demo"
 }
