@@ -259,6 +259,30 @@ ASG rule feature added in azure prover 1.3. To allow only traffic between ASG ta
   }
 ```
 
+## DNS
+
+For *HTTPS* communication, certficate and DNS name are required.
+
+To create DNS name, update `dnscount` to `1` (default is 0) and add `dnszone` and `dnszonerg` in the `variables.tf`.
+You need a [Azure DNS zone](https://docs.microsoft.com/en-us/azure/dns/dns-getstarted-portal) in your subscription.
+
+```
+resource "azurerm_dns_a_record" "webappdns" {
+  count               = "${var.dnscount}"
+  name                = "${var.prefix}"
+  zone_name           = "${var.dnszone}"
+  resource_group_name = "${var.dnszonerg}"
+  ttl                 = 3600
+  records             = ["${azurerm_public_ip.tflbpip.ip_address}"]
+
+  depends_on = ["azurerm_public_ip.tflbpip"]
+}
+
+output "dns_name" {
+  value = "${var.prefix}.${var.dnszone}"
+}
+```
+
 ## Some issue
 
 For availableset, default 3 not working in some regions like Korea, use 2 instead.
