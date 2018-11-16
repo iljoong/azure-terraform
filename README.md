@@ -2,7 +2,7 @@
 
 ## Sample architecture
 
-![sample architecture](./images/terraform_azure2.png)
+![sample architecture](./images/terraform_azure3.png)
 
 N-Tier architecture service with a jumphost and a NAT instance.
 NAT instance is used for SNATing outbound from VMs in app-subnet.  
@@ -49,6 +49,7 @@ terraform apply
 5. Setting LB
 6. NAT instance - provision NAT instance, configure UDR and configure NAT using VM extension
 7. ASG - create and apply ASG
+8. Blob - create blob account and upload a file
 
 For more information, please refer [DOC.md](./DOC.md)
 
