@@ -22,7 +22,7 @@ Note that if you have multiple subscriptions then you should set right default s
 
 ```
 az account set -s <subscription_id>
-az ad sp create-for-rbac
+az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/<subscription_id>"
 ```
 
 ### Run terraform
@@ -57,7 +57,7 @@ For more information, please refer [DOC.md](./DOC.md)
 After provisioned, login to one of `app` vm through jump box and test source ip using following command
 
 ```
-wget -q -O - checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'
+curl ipinfo.io
 ```
 
 ## Reference
