@@ -16,7 +16,7 @@ resource "azurerm_network_security_group" "tfnatnsg" {
     destination_address_prefix = "Internet"
   }
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -26,9 +26,9 @@ resource "azurerm_public_ip" "tfnatip" {
   name                         = "${var.prefix}-natip"
   location                     = "${var.location}"
   resource_group_name          = "${azurerm_resource_group.tfrg.name}"
-  public_ip_address_allocation = "static"
+  allocation_method            = "Static"
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -49,7 +49,7 @@ resource "azurerm_network_interface" "tfnatnic" {
     public_ip_address_id          = "${azurerm_public_ip.tfnatip.id}"
   }
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -77,7 +77,7 @@ resource "azurerm_virtual_machine" "tfnatvm" {
   }
 
   os_profile {
-      computer_name  = "tfnatvm${count.index}"
+      computer_name  = "tfnatvm"
       admin_username = "${var.admin_username}"
       admin_password = "${var.admin_password}"
   }
@@ -85,7 +85,7 @@ resource "azurerm_virtual_machine" "tfnatvm" {
   os_profile_linux_config {
       disable_password_authentication = false
   }
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -105,7 +105,7 @@ resource "azurerm_virtual_machine_extension" "natvmext" {
     }
     SETTINGS
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }

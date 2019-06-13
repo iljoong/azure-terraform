@@ -53,7 +53,7 @@ resource "azurerm_network_security_group" "tfappnsg" {
     destination_application_security_group_ids = ["${azurerm_application_security_group.tfappasg.id}"]
   }
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -74,14 +74,25 @@ resource "azurerm_network_interface" "tfappnic" {
     #private_ip_address_allocation = "dynamic"
     private_ip_address_allocation  = "Static"
     private_ip_address             = "${format("10.0.2.%d", count.index + 4)}"
-    application_security_group_ids = ["${azurerm_application_security_group.tfappasg.id}"]
-
-    load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.tfapplbbackendpool.id}"]
   }
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "tfapppoolassc" {
+  count                     = "${var.appcount}"  
+  network_interface_id      = "${element(azurerm_network_interface.tfappnic.*.id,count.index)}"
+  ip_configuration_name     = "${var.prefix}-appnic-conf${count.index}"
+  backend_address_pool_id   = "${azurerm_lb_backend_address_pool.tfapplbbackendpool.id}"
+}
+
+resource "azurerm_network_interface_application_security_group_association" "tfappsecassc" {
+  count                         = "${var.appcount}"  
+  network_interface_id          = "${element(azurerm_network_interface.tfappnic.*.id,count.index)}"
+  ip_configuration_name         = "${var.prefix}-appnic-conf${count.index}"
+  application_security_group_id = "${azurerm_application_security_group.tfappasg.id}"
 }
 
 resource "azurerm_availability_set" "tfappavset" {
@@ -91,7 +102,7 @@ resource "azurerm_availability_set" "tfappavset" {
   managed                     = "true"
   platform_fault_domain_count = 2                                     # default 3 cannot be used
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -140,7 +151,7 @@ resource "azurerm_virtual_machine" "tfappvm" {
   os_profile_linux_config {
     disable_password_authentication = false
   }
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -161,7 +172,7 @@ resource "azurerm_virtual_machine_extension" "appvmext" {
     }
     SETTINGS
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }

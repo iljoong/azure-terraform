@@ -11,7 +11,7 @@ resource "azurerm_resource_group" "tfrg" {
     name     = "${var.prefix}-rg"
     location = "${var.location}"
 
-    tags {
+    tags = {
         environment = "${var.tag}"
     }
 }
@@ -23,7 +23,7 @@ resource "azurerm_virtual_network" "tfvnet" {
     location            = "${var.location}"
     resource_group_name = "${azurerm_resource_group.tfrg.name}"
 
-    tags {
+    tags = {
         environment = "${var.tag}"
     }
 }

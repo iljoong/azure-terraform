@@ -16,7 +16,7 @@ resource "azurerm_network_security_group" "tfjboxnsg" {
     destination_address_prefix = "*"
   }
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -26,9 +26,9 @@ resource "azurerm_public_ip" "tfjboxip" {
   name                         = "${var.prefix}-jboxip"
   location                     = "${var.location}"
   resource_group_name          = "${azurerm_resource_group.tfrg.name}"
-  public_ip_address_allocation = "static"
+  allocation_method            = "Static"
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -45,13 +45,17 @@ resource "azurerm_network_interface" "tfjboxnic" {
     subnet_id                     = "${azurerm_subnet.tfjboxvnet.id}"
     private_ip_address_allocation = "dynamic"
     public_ip_address_id          = "${azurerm_public_ip.tfjboxip.id}"
-
-    application_security_group_ids = ["${azurerm_application_security_group.tfjboxasg.id}"]
   }
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
+}
+
+resource "azurerm_network_interface_application_security_group_association" "tfjboxsecassc" {
+  network_interface_id  = "${azurerm_network_interface.tfjboxnic.id}"
+  ip_configuration_name = "${var.prefix}-jboxnic-conf"
+  application_security_group_id = "${azurerm_application_security_group.tfwebasg.id}"
 }
 
 # Create virtual machine
@@ -93,7 +97,7 @@ resource "azurerm_virtual_machine" "tfjboxvm" {
   }
   */
   os_profile {
-      computer_name  = "tfjobxvm${count.index}"
+      computer_name  = "tfjobxvm"
       admin_username = "${var.admin_username}"
       admin_password = "${var.admin_password}"
   }
@@ -102,7 +106,7 @@ resource "azurerm_virtual_machine" "tfjboxvm" {
       disable_password_authentication = false
   }
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }

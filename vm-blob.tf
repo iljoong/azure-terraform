@@ -5,7 +5,7 @@ resource "azurerm_storage_account" "tfblob" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }

@@ -1,5 +1,7 @@
 # README
 
+> Scripts are revised for [Terraform AzureRM v1.30.0](https://github.com/terraform-providers/terraform-provider-azurerm/milestone/45).
+
 ## Sample architecture
 
 ![sample architecture](./images/terraform_azure3.png)
@@ -80,5 +82,3 @@ curl ipinfo.io
 - lb-pool associate vms: https://github.com/hashicorp/terraform/issues/13663
 
 - loops: https://blog.gruntwork.io/terraform-tips-tricks-loops-if-statements-and-gotchas-f739bbae55f9
-
-

@@ -16,7 +16,7 @@ resource "azurerm_network_security_group" "tfwebnsg" {
     destination_address_prefix = "*"
   }
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -35,17 +35,34 @@ resource "azurerm_network_interface" "tfwebnic" {
     #private_ip_address_allocation = "dynamic"
     private_ip_address_allocation = "Static"
     private_ip_address            = "${format("10.0.1.%d", count.index + 4)}"
-
-    load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.tflbbackendpool.id}"]
-    load_balancer_inbound_nat_rules_ids = ["${azurerm_lb_nat_rule.lbnatrule.*.id[count.index]}"]
-
-    application_security_group_ids = ["${azurerm_application_security_group.tfwebasg.id}"]
   }
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
+
+resource "azurerm_network_interface_backend_address_pool_association" "tfwebpoolassc" {
+  count                     = "${var.webcount}"  
+  network_interface_id      = "${element(azurerm_network_interface.tfwebnic.*.id,count.index)}"
+  ip_configuration_name     = "${var.prefix}-webnic-config${count.index}"
+  backend_address_pool_id   = "${azurerm_lb_backend_address_pool.tflbbackendpool.id}"
+}
+
+resource "azurerm_network_interface_nat_rule_association" "tfnatruleassc" {
+  count                 = "${var.webcount}"  
+  network_interface_id  = "${element(azurerm_network_interface.tfwebnic.*.id,count.index)}"
+  ip_configuration_name = "${var.prefix}-webnic-config${count.index}"
+  nat_rule_id           = "${element(azurerm_lb_nat_rule.lbnatrule.*.id,count.index)}"
+}
+
+resource "azurerm_network_interface_application_security_group_association" "tfwebsecassc" {
+  count                 = "${var.webcount}"  
+  network_interface_id  = "${element(azurerm_network_interface.tfwebnic.*.id,count.index)}"
+  ip_configuration_name = "${var.prefix}-webnic-config${count.index}"
+  application_security_group_id = "${azurerm_application_security_group.tfwebasg.id}"
+}
+
 
 resource "azurerm_availability_set" "tfwebavset" {
   name                        = "${var.prefix}-webavset"
@@ -54,7 +71,7 @@ resource "azurerm_availability_set" "tfwebavset" {
   managed                     = "true"
   platform_fault_domain_count = 2 # default 3 not working in some regions like Korea
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -100,7 +117,7 @@ resource "azurerm_virtual_machine" "tfwebvm" {
       disable_password_authentication = false
   }
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -121,7 +138,7 @@ resource "azurerm_virtual_machine_extension" "webvmext" {
     }
     SETTINGS
 
-  tags {
+  tags = {
     environment = "${var.tag}"
   }
 }
@@ -131,7 +148,7 @@ resource "azurerm_public_ip" "tflbpip" {
   name                         = "${var.prefix}-flbpip"
   location                     = "${var.location}"
   resource_group_name          = "${azurerm_resource_group.tfrg.name}"
-  public_ip_address_allocation = "static"
+  allocation_method            = "Static"
   sku                          = "Basic" # "Standard"
 }
 
