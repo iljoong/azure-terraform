@@ -11,6 +11,8 @@
 N-Tier architecture service with a jumphost and a NAT instance.
 NAT instance is used for SNATing outbound from VMs in app-subnet.  
 
+For AKS architecture, see [AKS Sample](./README-aks.md)
+
 ## How to run
 
 ### Preparation
