@@ -1,5 +1,7 @@
 # README
 
+> Script works with Terraform `v0.12.10`. You may need to upgrade the scripts if you want to use `v0.12.12`
+
 > Scripts are revised for [Terraform AzureRM v1.30.0](https://github.com/terraform-providers/terraform-provider-azurerm/milestone/45).
 
 ## Sample architecture
