@@ -16,7 +16,7 @@ AKS deployment architecture with advanced features.
 
 You need to set `load_balancer_sku = "standard"` in `network_profile` in order to use __AZ__.
 
-> Note: At the time of writing this, you need to manually register preview features in order to use __multi-node pools__ and __AZ__. See documentation more information
+> Note: At the time of writing this, you need to manually register preview features in order to use __multi-node pools__ and __AZ__. See documentation for more information
 
 
 ## Run Terraform
@@ -44,7 +44,7 @@ kubectl apply -f aks\files\demo.yaml
 ### Browse K8S dashboard
 
 ```
-az aks browse --resource-group mtckor-rg --name mtckor-aks
+az aks browse --resource-group $rgname --name $aksname
 ```
 
 > You need to run following CLI to access dashboard. `#kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard`
