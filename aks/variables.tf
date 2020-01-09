@@ -36,5 +36,5 @@ variable "location" {
 }
 
 variable "tag" {
-  default = "deno"
+  default = "demo"
 }

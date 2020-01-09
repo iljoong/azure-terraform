@@ -1,8 +1,8 @@
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "tfappnsg" {
   name                = "${var.prefix}-appnsg"
-  location            = "${var.location}"
-  resource_group_name = "${azurerm_resource_group.tfrg.name}"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.tfrg.name
 
   security_rule {
     name                       = "DENY_VNET"
@@ -49,76 +49,76 @@ resource "azurerm_network_security_group" "tfappnsg" {
     source_port_range      = "*"
     destination_port_range = "80"
 
-    source_application_security_group_ids      = ["${azurerm_application_security_group.tfwebasg.id}"]
-    destination_application_security_group_ids = ["${azurerm_application_security_group.tfappasg.id}"]
+    source_application_security_group_ids      = [azurerm_application_security_group.tfwebasg.id]
+    destination_application_security_group_ids = [azurerm_application_security_group.tfappasg.id]
   }
 
   tags = {
-    environment = "${var.tag}"
+    environment = var.tag
   }
 }
 
 # Create network interface
 resource "azurerm_network_interface" "tfappnic" {
-  count               = "${var.appcount}"
+  count               = var.appcount
   name                = "${var.prefix}-appnic${count.index}"
-  location            = "${var.location}"
-  resource_group_name = "${azurerm_resource_group.tfrg.name}"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.tfrg.name
 
-  network_security_group_id = "${azurerm_network_security_group.tfappnsg.id}"
+  network_security_group_id = azurerm_network_security_group.tfappnsg.id
 
   ip_configuration {
     name      = "${var.prefix}-appnic-conf${count.index}"
-    subnet_id = "${azurerm_subnet.tfappvnet.id}"
+    subnet_id = azurerm_subnet.tfappvnet.id
 
     #private_ip_address_allocation = "dynamic"
-    private_ip_address_allocation  = "Static"
-    private_ip_address             = "${format("10.0.2.%d", count.index + 4)}"
+    private_ip_address_allocation = "Static"
+    private_ip_address            = format("10.0.2.%d", count.index + 4)
   }
 
   tags = {
-    environment = "${var.tag}"
+    environment = var.tag
   }
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "tfapppoolassc" {
-  count                     = "${var.appcount}"  
-  network_interface_id      = "${element(azurerm_network_interface.tfappnic.*.id,count.index)}"
-  ip_configuration_name     = "${var.prefix}-appnic-conf${count.index}"
-  backend_address_pool_id   = "${azurerm_lb_backend_address_pool.tfapplbbackendpool.id}"
+  count                   = var.appcount
+  network_interface_id    = element(azurerm_network_interface.tfappnic.*.id, count.index)
+  ip_configuration_name   = "${var.prefix}-appnic-conf${count.index}"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.tfapplbbackendpool.id
 }
 
 resource "azurerm_network_interface_application_security_group_association" "tfappsecassc" {
-  count                         = "${var.appcount}"  
-  network_interface_id          = "${element(azurerm_network_interface.tfappnic.*.id,count.index)}"
+  count                         = var.appcount
+  network_interface_id          = element(azurerm_network_interface.tfappnic.*.id, count.index)
   ip_configuration_name         = "${var.prefix}-appnic-conf${count.index}"
-  application_security_group_id = "${azurerm_application_security_group.tfappasg.id}"
+  application_security_group_id = azurerm_application_security_group.tfappasg.id
 }
 
 resource "azurerm_availability_set" "tfappavset" {
   name                        = "${var.prefix}-appavset"
-  location                    = "${var.location}"
-  resource_group_name         = "${azurerm_resource_group.tfrg.name}"
+  location                    = var.location
+  resource_group_name         = azurerm_resource_group.tfrg.name
   managed                     = "true"
-  platform_fault_domain_count = 2                                     # default 3 cannot be used
+  platform_fault_domain_count = 2 # default 3 cannot be used
 
   tags = {
-    environment = "${var.tag}"
+    environment = var.tag
   }
 }
 
 # Create virtual machine
 resource "azurerm_virtual_machine" "tfappvm" {
-  count                 = "${var.appcount}"
+  count                 = var.appcount
   name                  = "${var.prefix}appvm${count.index}"
-  location              = "${var.location}"
-  resource_group_name   = "${azurerm_resource_group.tfrg.name}"
-  network_interface_ids = ["${azurerm_network_interface.tfappnic.*.id[count.index]}"]
-  vm_size               = "${var.vmsize}"
-  availability_set_id   = "${azurerm_availability_set.tfappavset.id}"
+  location              = var.location
+  resource_group_name   = azurerm_resource_group.tfrg.name
+  network_interface_ids = [azurerm_network_interface.tfappnic[count.index].id]
+  vm_size               = var.vmsize
+  availability_set_id   = azurerm_availability_set.tfappavset.id
 
   storage_os_disk {
-    name              = "${format("%s-app-%03d-osdisk", var.prefix, count.index + 1)}"
+    name              = format("%s-app-%03d-osdisk", var.prefix, count.index + 1)
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Premium_LRS"
@@ -144,24 +144,24 @@ resource "azurerm_virtual_machine" "tfappvm" {
     version   = "latest"
   }
   os_profile {
-    computer_name  = "${format("tfappvm%03d", count.index + 1)}"
-    admin_username = "${var.admin_username}"
-    admin_password = "${var.admin_password}"
+    computer_name  = format("tfappvm%03d", count.index + 1)
+    admin_username = var.admin_username
+    admin_password = var.admin_password
   }
   os_profile_linux_config {
     disable_password_authentication = false
   }
   tags = {
-    environment = "${var.tag}"
+    environment = var.tag
   }
 }
 
 resource "azurerm_virtual_machine_extension" "appvmext" {
-  count                = "${var.appcount}"
+  count                = var.appcount
   name                 = "appvmext"
-  location             = "${var.location}"
-  resource_group_name  = "${azurerm_resource_group.tfrg.name}"
-  virtual_machine_name = "${azurerm_virtual_machine.tfappvm.*.name[count.index]}"
+  location             = var.location
+  resource_group_name  = azurerm_resource_group.tfrg.name
+  virtual_machine_name = azurerm_virtual_machine.tfappvm[count.index].name
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"
   type_handler_version = "2.0"
@@ -169,52 +169,52 @@ resource "azurerm_virtual_machine_extension" "appvmext" {
   settings = <<SETTINGS
     {
         "script": "IyEvYmluL3NoCgpzdWRvIGFwdC1nZXQgdXBkYXRlCnN1ZG8gYXB0LWdldCAteSBpbnN0YWxsIG5naW54Cg=="
-    }
+    }   
     SETTINGS
 
   tags = {
-    environment = "${var.tag}"
+    environment = var.tag
   }
 }
 
 resource "azurerm_lb" "tfapplb" {
   name                = "${var.prefix}applb"
-  location            = "${var.location}"
-  resource_group_name = "${azurerm_resource_group.tfrg.name}"
-  sku                 = "Basic"                               # "Standard"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.tfrg.name
+  sku                 = "Basic" # "Standard"
 
   frontend_ip_configuration {
     name                          = "ApplbIPAddress"
-    subnet_id                     = "${azurerm_subnet.tfappvnet.id}"
+    subnet_id                     = azurerm_subnet.tfappvnet.id
     private_ip_address            = "10.0.2.100"
     private_ip_address_allocation = "Static"
   }
 }
 
 resource "azurerm_lb_backend_address_pool" "tfapplbbackendpool" {
-  resource_group_name = "${azurerm_resource_group.tfrg.name}"
-  loadbalancer_id     = "${azurerm_lb.tfapplb.id}"
+  resource_group_name = azurerm_resource_group.tfrg.name
+  loadbalancer_id     = azurerm_lb.tfapplb.id
   name                = "AppLBBackEndAddressPool"
 }
 
 resource "azurerm_lb_rule" "applb_rule" {
-  resource_group_name            = "${azurerm_resource_group.tfrg.name}"
-  loadbalancer_id                = "${azurerm_lb.tfapplb.id}"
+  resource_group_name            = azurerm_resource_group.tfrg.name
+  loadbalancer_id                = azurerm_lb.tfapplb.id
   name                           = "LBRule"
   protocol                       = "tcp"
   frontend_port                  = 80
   backend_port                   = 80
   frontend_ip_configuration_name = "ApplbIPAddress"
   enable_floating_ip             = false
-  backend_address_pool_id        = "${azurerm_lb_backend_address_pool.tfapplbbackendpool.id}"
+  backend_address_pool_id        = azurerm_lb_backend_address_pool.tfapplbbackendpool.id
   idle_timeout_in_minutes        = 5
-  probe_id                       = "${azurerm_lb_probe.applb_probe.id}"
-  depends_on                     = ["azurerm_lb_probe.applb_probe"]
+  probe_id                       = azurerm_lb_probe.applb_probe.id
+  depends_on                     = [azurerm_lb_probe.applb_probe]
 }
 
 resource "azurerm_lb_probe" "applb_probe" {
-  resource_group_name = "${azurerm_resource_group.tfrg.name}"
-  loadbalancer_id     = "${azurerm_lb.tfapplb.id}"
+  resource_group_name = azurerm_resource_group.tfrg.name
+  loadbalancer_id     = azurerm_lb.tfapplb.id
   name                = "tcpProbe"
   protocol            = "tcp"
   port                = 80

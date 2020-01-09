@@ -1,4 +1,5 @@
 #!/bin/sh
+sudo apt-get update
 
 # net.ipv4.ip_forward = 1
 cp /etc/sysctl.conf /tmp/sysctl.conf
