@@ -33,6 +33,8 @@ az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/<subscrip
 
 > You don't need to create SP if you're using Azure CLI environment, such as _Azure Shell_. See [Authenticating using the Azure CLI](https://www.terraform.io/docs/providers/azurerm/auth/azure_cli.html) for more information
 
+> You can also enable MSI to run terraform witout SP on your Azure VM. See [Authenticating using managed identities for Azure resources](https://www.terraform.io/docs/providers/azurerm/guides/managed_service_identity.html) and please refer (MSI documentation)[https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/tutorial-linux-vm-access-arm] for how to setup MSI.
+
 ### Run terraform
 
 Initialize first,
