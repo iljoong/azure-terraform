@@ -11,7 +11,12 @@
 N-Tier architecture service with a jumphost and a NAT instance.
 NAT instance is used for SNATing outbound from VMs in app-subnet.  
 
-For AKS architecture, see [AKS Sample](./README-aks.md)
+Other samples:
+- [AKS Sample](./README-aks.md)
+- [PaaS (App Service + SQL DB) samples](https://github.com/iljoong/azure-tf-paas)
+- [IoT samples](https://github.com/iljoong/azure-tf-iot)
+- [Jmeter environment sample](https://github.com/iljoong/azure-jmeter)
+- [DevOps environment sample](https://github.com/iljoong/azure-devops/tree/master/terraform)
 
 ## How to run
 
