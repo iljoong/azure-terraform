@@ -38,7 +38,7 @@ resource "azurerm_network_interface" "tfjboxnic" {
   name                      = "${var.prefix}-jboxnic"
   location                  = var.location
   resource_group_name       = azurerm_resource_group.tfrg.name
-  network_security_group_id = azurerm_network_security_group.tfjboxnsg.id
+  #-network_security_group_id = azurerm_network_security_group.tfjboxnsg.id
 
   ip_configuration {
     name                          = "${var.prefix}-jboxnic-conf"
@@ -50,6 +50,11 @@ resource "azurerm_network_interface" "tfjboxnic" {
   tags = {
     environment = var.tag
   }
+}
+
+resource "azurerm_network_interface_security_group_association" "tfjboxnic" {
+  network_interface_id      = azurerm_network_interface.tfjboxnic.id
+  network_security_group_id = azurerm_network_security_group.tfjboxnsg.id
 }
 
 # Create virtual machine

@@ -6,13 +6,14 @@ resource "azurerm_kubernetes_cluster" "tfaks" {
 
   #kubernetes_version = "1.13.11"
 
-  agent_pool_profile {
+  default_node_pool {
     name            = "default"
-    count           = 2
+    node_count      = 2
     min_count       = 2
     max_count       = 3
     vm_size         = "Standard_DS1_v2"
-    os_type         = "Linux"
+
+    #os_type         = "Linux"
     os_disk_size_gb = 128
 
     # Autoscale
@@ -25,20 +26,11 @@ resource "azurerm_kubernetes_cluster" "tfaks" {
     vnet_subnet_id = azurerm_subnet.tfaksvnet.id
   }
 
-  agent_pool_profile {
-    name            = "gpu"
-    count           = 1
-    min_count       = 1
-    max_count       = 2
-    vm_size         = "Standard_DS1_v2" #"Standard_NC6"
-    os_type         = "Linux"
-    os_disk_size_gb = 128
-
-    # Autoscale
-    type                = "VirtualMachineScaleSets"
-    enable_auto_scaling = true
-
-    vnet_subnet_id = azurerm_subnet.tfaksvnet.id
+  linux_profile {
+    admin_username = var.admin_username
+    ssh_key {
+      key_data = var.admin_keydata
+    }
   }
 
   network_profile {
@@ -54,6 +46,22 @@ resource "azurerm_kubernetes_cluster" "tfaks" {
   tags = {
     environment = var.tag
   }
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "tfgpupool" {
+    name            = "gpu"
+    kubernetes_cluster_id = azurerm_kubernetes_cluster.tfaks.id
+    node_count      = 1
+    min_count       = 1
+    max_count       = 2
+    vm_size         = "Standard_DS1_v2" #"Standard_NC6"
+    os_type         = "Linux"
+    os_disk_size_gb = 128
+
+    # Autoscale
+    enable_auto_scaling = true
+
+    vnet_subnet_id = azurerm_subnet.tfaksvnet.id
 }
 
 output "client_certificate" {

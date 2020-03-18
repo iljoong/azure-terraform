@@ -1,8 +1,6 @@
 # README
 
-> Script works with Terraform `v0.12.10`. You may need to upgrade the scripts if you want to use `v0.12.12`
-
-> Scripts are revised for [Terraform AzureRM v1.30.0](https://github.com/terraform-providers/terraform-provider-azurerm/milestone/45).
+> Revised for _Terraform AzureRM v2.1_
 
 ## Sample architecture
 
@@ -12,7 +10,7 @@ N-Tier architecture service with a jumphost and a NAT instance.
 NAT instance is used for SNATing outbound from VMs in app-subnet.  
 
 Other samples:
-- [AKS Sample](./README-aks.md)
+- [AKS Sample](./aks/README.md)
 - [PaaS (App Service + SQL DB) samples](https://github.com/iljoong/azure-tf-paas)
 - [IoT samples](https://github.com/iljoong/azure-tf-iot)
 - [Jmeter environment sample](https://github.com/iljoong/azure-jmeter)

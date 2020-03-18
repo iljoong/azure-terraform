@@ -26,6 +26,10 @@ variable "admin_password" {
   default = "_add_here_"
 }
 
+variable "admin_keydata" {
+  default = "_add_here_"
+}
+
 # service variables
 variable "prefix" {
   default = "tfaksdemo"

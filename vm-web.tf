@@ -27,7 +27,7 @@ resource "azurerm_network_interface" "tfwebnic" {
   name                      = "${var.prefix}-webnic${count.index}"
   location                  = var.location
   resource_group_name       = azurerm_resource_group.tfrg.name
-  network_security_group_id = azurerm_network_security_group.tfwebnsg.id
+  #-network_security_group_id = azurerm_network_security_group.tfwebnsg.id
 
   ip_configuration {
     name      = "${var.prefix}-webnic-config${count.index}"
@@ -41,6 +41,12 @@ resource "azurerm_network_interface" "tfwebnic" {
   tags = {
     environment = var.tag
   }
+}
+
+resource "azurerm_network_interface_security_group_association" "tfwebnic" {
+  count                     = var.appcount
+  network_interface_id      = azurerm_network_interface.tfwebnic[count.index].id
+  network_security_group_id = azurerm_network_security_group.tfwebnsg.id
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "tfwebpoolassc" {
@@ -60,7 +66,7 @@ resource "azurerm_network_interface_nat_rule_association" "tfnatruleassc" {
 resource "azurerm_network_interface_application_security_group_association" "tfwebsecassc" {
   count                         = var.webcount
   network_interface_id          = element(azurerm_network_interface.tfwebnic.*.id, count.index)
-  ip_configuration_name         = "${var.prefix}-webnic-config${count.index}"
+  #-ip_configuration_name         = "${var.prefix}-webnic-config${count.index}"
   application_security_group_id = azurerm_application_security_group.tfwebasg.id
 }
 
@@ -125,9 +131,10 @@ resource "azurerm_virtual_machine" "tfwebvm" {
 resource "azurerm_virtual_machine_extension" "webvmext" {
   count                = var.webcount
   name                 = "webvmext"
-  location             = var.location
-  resource_group_name  = azurerm_resource_group.tfrg.name
-  virtual_machine_name = azurerm_virtual_machine.tfwebvm[count.index].name
+  virtual_machine_id   = azurerm_virtual_machine.tfwebvm[count.index].id
+  #-location             = var.location
+  #-resource_group_name  = azurerm_resource_group.tfrg.name
+  #-virtual_machine_name = azurerm_virtual_machine.tfwebvm[count.index].name
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"
   type_handler_version = "2.0"
