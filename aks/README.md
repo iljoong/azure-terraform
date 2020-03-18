@@ -6,7 +6,7 @@ Sample terraform script for AKS.
 
 ## Sample architecture
 
-![sample AKS architecture](./images/terraform_aks.png)
+![sample AKS architecture](../images/terraform_aks.png)
 
 AKS deployment architecture with advanced features.
 - [Advanced networking (Azure CNI)](https://docs.microsoft.com/en-us/azure/aks/configure-azure-cni)
