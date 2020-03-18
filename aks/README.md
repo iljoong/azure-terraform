@@ -1,6 +1,6 @@
 # README
 
-> Script works with Terraform `v0.12.10`. You may need to upgrade the scripts if you want to use `v0.12.12`
+> Revised for _Terraform AzureRM v2.1_
 
 Sample terraform script for AKS.
 
@@ -21,15 +21,15 @@ You need to set `load_balancer_sku = "standard"` in `network_profile` in order t
 
 ## Run Terraform
 
-Sample AKS terraform script is located in [aks](./aks) folder.
+Sample AKS terraform script is located in this folder.
 
-> Please refer [README](./README.md) for how to run terraform script.
+> Please refer [README](./../README.md) for how to run terraform script.
 
 ## Test
 
 Once create AKS cluster, run following CLI to get K8S config key
 
-```
+```bash
 az aks get-credentials --resource-group $rgname --name $aksname
 ```
 
@@ -37,13 +37,13 @@ az aks get-credentials --resource-group $rgname --name $aksname
 
 Run a sample image for test. Please refer [terraform examples](https://github.com/terraform-providers/terraform-provider-azurerm/tree/master/examples/kubernetes) for more information
 
-```
-kubectl apply -f aks\files\demo.yaml
+```bash
+kubectl apply -f ./files/demo.yaml
 ```
 
 ### Browse K8S dashboard
 
-```
+```bash
 az aks browse --resource-group $rgname --name $aksname
 ```
 

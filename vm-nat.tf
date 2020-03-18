@@ -38,7 +38,7 @@ resource "azurerm_network_interface" "tfnatnic" {
   name                      = "${var.prefix}-natnic"
   location                  = var.location
   resource_group_name       = azurerm_resource_group.tfrg.name
-  network_security_group_id = azurerm_network_security_group.tfnatnsg.id
+  #-network_security_group_id = azurerm_network_security_group.tfnatnsg.id
   enable_ip_forwarding      = "true"
 
   ip_configuration {
@@ -52,6 +52,11 @@ resource "azurerm_network_interface" "tfnatnic" {
   tags = {
     environment = var.tag
   }
+}
+
+resource "azurerm_network_interface_security_group_association" "tfnatnic" {
+  network_interface_id      = azurerm_network_interface.tfnatnic.id
+  network_security_group_id = azurerm_network_security_group.tfnatnsg.id
 }
 
 # Create virtual machine
@@ -92,9 +97,10 @@ resource "azurerm_virtual_machine" "tfnatvm" {
 
 resource "azurerm_virtual_machine_extension" "natvmext" {
   name                 = "natvmext"
-  location             = var.location
-  resource_group_name  = azurerm_resource_group.tfrg.name
-  virtual_machine_name = azurerm_virtual_machine.tfnatvm.name
+  virtual_machine_id   = azurerm_virtual_machine.tfnatvm.id
+  #location             = var.location
+  #-resource_group_name  = azurerm_resource_group.tfrg.name
+  #-virtual_machine_name = azurerm_virtual_machine.tfnatvm.name
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"
   type_handler_version = "2.0"

@@ -65,7 +65,7 @@ resource "azurerm_network_interface" "tfappnic" {
   location            = var.location
   resource_group_name = azurerm_resource_group.tfrg.name
 
-  network_security_group_id = azurerm_network_security_group.tfappnsg.id
+  #-network_security_group_id = azurerm_network_security_group.tfappnsg.id
 
   ip_configuration {
     name      = "${var.prefix}-appnic-conf${count.index}"
@@ -81,6 +81,12 @@ resource "azurerm_network_interface" "tfappnic" {
   }
 }
 
+resource "azurerm_network_interface_security_group_association" "tfappnic" {
+  count                     = var.appcount
+  network_interface_id      = azurerm_network_interface.tfappnic[count.index].id
+  network_security_group_id = azurerm_network_security_group.tfappnsg.id
+}
+
 resource "azurerm_network_interface_backend_address_pool_association" "tfapppoolassc" {
   count                   = var.appcount
   network_interface_id    = element(azurerm_network_interface.tfappnic.*.id, count.index)
@@ -91,7 +97,7 @@ resource "azurerm_network_interface_backend_address_pool_association" "tfapppool
 resource "azurerm_network_interface_application_security_group_association" "tfappsecassc" {
   count                         = var.appcount
   network_interface_id          = element(azurerm_network_interface.tfappnic.*.id, count.index)
-  ip_configuration_name         = "${var.prefix}-appnic-conf${count.index}"
+  #-ip_configuration_name         = "${var.prefix}-appnic-conf${count.index}"
   application_security_group_id = azurerm_application_security_group.tfappasg.id
 }
 
@@ -159,9 +165,10 @@ resource "azurerm_virtual_machine" "tfappvm" {
 resource "azurerm_virtual_machine_extension" "appvmext" {
   count                = var.appcount
   name                 = "appvmext"
-  location             = var.location
-  resource_group_name  = azurerm_resource_group.tfrg.name
-  virtual_machine_name = azurerm_virtual_machine.tfappvm[count.index].name
+  virtual_machine_id   = azurerm_virtual_machine.tfappvm[count.index].id
+  #-location             = var.location
+  #-resource_group_name  = azurerm_resource_group.tfrg.name
+  #-virtual_machine_name = azurerm_virtual_machine.tfappvm[count.index].name
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"
   type_handler_version = "2.0"
