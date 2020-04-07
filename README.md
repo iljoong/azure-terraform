@@ -60,7 +60,7 @@ terraform apply
   for building custom image, refer [packer](./packer)
 4. Create multiple VMs
 5. Setting LB
-6. NAT instance - provision NAT instance, configure UDR and configure NAT using VM extension
+6. NAT Gateway - no more NAT instance
 7. ASG - create and apply ASG
 8. Blob - create blob account and upload a file
 

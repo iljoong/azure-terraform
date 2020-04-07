@@ -142,6 +142,8 @@ resource "azurerm_network_interface" "tfwebnic" {
 
 ## NAT instance
 
+> NAT instance is no longer needed and use [NAT Gateway](https://docs.microsoft.com/en-us/azure/virtual-network/nat-overview).
+
 For NAT Instance VM, enable `enable_ip_forwarding` in VM's nic
 
 ```

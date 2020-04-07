@@ -5,6 +5,8 @@ provider "azurerm" {
   client_secret   = var.client_secret
   tenant_id       = var.tenant_id
 
+  version         = 2.1
+
   features {}
 }
 
@@ -51,11 +53,6 @@ resource "azurerm_subnet" "tfappvnet" {
   address_prefix       = "10.0.2.0/24"
 }
 
-resource "azurerm_subnet_route_table_association" "tfappvnet" {
-  subnet_id            = azurerm_subnet.tfappvnet.id
-  route_table_id       = azurerm_route_table.nattable.id
-}
-
 resource "azurerm_subnet" "tfjboxvnet" {
   name                 = "jbox-subnet"
   virtual_network_name = azurerm_virtual_network.tfvnet.name
@@ -63,7 +60,13 @@ resource "azurerm_subnet" "tfjboxvnet" {
   address_prefix       = "10.0.3.0/24"
 }
 
+/*
 # UDR
+resource "azurerm_subnet_route_table_association" "tfappvnet" {
+  subnet_id            = azurerm_subnet.tfappvnet.id
+  route_table_id       = azurerm_route_table.nattable.id
+}
+
 resource "azurerm_route_table" "nattable" {
   name                = "${var.prefix}-natroutetable"
   location            = var.location
@@ -76,7 +79,7 @@ resource "azurerm_route_table" "nattable" {
     next_hop_in_ip_address = "10.0.0.10"
   }
 }
-
+*/
 # ASG
 resource "azurerm_application_security_group" "tfwebasg" {
   name                = "tf-webasg"
