@@ -4,7 +4,7 @@
 
 ## Sample architecture
 
-![sample architecture](./images/terraform_azure3.png)
+![sample architecture](./images/terraform_azure4.png)
 
 N-Tier architecture service with a jumphost and a NAT instance.
 NAT instance is used for SNATing outbound from VMs in app-subnet.  
