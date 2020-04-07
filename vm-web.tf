@@ -156,14 +156,14 @@ resource "azurerm_public_ip" "tflbpip" {
   location            = var.location
   resource_group_name = azurerm_resource_group.tfrg.name
   allocation_method   = "Static"
-  sku                 = "Basic" # "Standard"
+  sku                 = "Standard"
 }
 
 resource "azurerm_lb" "tflb" {
   name                = "${var.prefix}lb"
   location            = var.location
   resource_group_name = azurerm_resource_group.tfrg.name
-  sku                 = "Basic" # "Standard"
+  sku                 = "Standard"
 
   frontend_ip_configuration {
     name                 = "PublicIPAddress"

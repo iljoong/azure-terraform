@@ -188,7 +188,7 @@ resource "azurerm_lb" "tfapplb" {
   name                = "${var.prefix}applb"
   location            = var.location
   resource_group_name = azurerm_resource_group.tfrg.name
-  sku                 = "Basic" # "Standard"
+  sku                 = "Standard"
 
   frontend_ip_configuration {
     name                          = "ApplbIPAddress"
