@@ -38,7 +38,7 @@ resource "azurerm_subnet_nat_gateway_association" "tfnatgw" {
 
 # natgw_public_ip_prefix 
 output "natgw_public_ip" {
-  value = azurerm_public_ip_prefix.tfnatip.ip_address
+  value = azurerm_public_ip.tfnatip.ip_address
 }
 
 /*
