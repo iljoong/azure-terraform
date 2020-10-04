@@ -1,34 +1,35 @@
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
-  subscription_id = var.subscription_id
-  client_id       = var.client_id
-  client_secret   = var.client_secret
-  tenant_id       = var.tenant_id
+  subscription_id = var.azure.subscription_id
+  client_id       = var.azure.client_id
+  client_secret   = var.azure.client_secret
+  tenant_id       = var.azure.tenant_id
 
-  version         = 2.1
+  # use latest
+  #version         = 2.1
 
   features {}
 }
 
 # Create a resource group if it doesn’t exist
 resource "azurerm_resource_group" "tfrg" {
-  name     = "${var.prefix}-rg"
-  location = var.location
+  name     = "${var.resource.prefix}-rg"
+  location = var.resource.location
 
   tags = {
-    environment = var.tag
+    environment = var.resource.tag
   }
 }
 
 # Create virtual network
 resource "azurerm_virtual_network" "tfvnet" {
-  name                = "${var.prefix}-vnet"
+  name                = "${var.resource.prefix}-vnet"
   address_space       = ["10.0.0.0/16"]
-  location            = var.location
+  location            = var.resource.location
   resource_group_name = azurerm_resource_group.tfrg.name
 
   tags = {
-    environment = var.tag
+    environment = var.resource.tag
   }
 }
 
@@ -36,28 +37,28 @@ resource "azurerm_subnet" "tfnatvnet" {
   name                 = "app-natnet"
   virtual_network_name = azurerm_virtual_network.tfvnet.name
   resource_group_name  = azurerm_resource_group.tfrg.name
-  address_prefix       = "10.0.0.0/24"
+  address_prefixes     = ["10.0.0.0/24"]
 }
 
 resource "azurerm_subnet" "tfwebvnet" {
   name                 = "web-subnet"
   virtual_network_name = azurerm_virtual_network.tfvnet.name
   resource_group_name  = azurerm_resource_group.tfrg.name
-  address_prefix       = "10.0.1.0/24"
+  address_prefixes     = ["10.0.1.0/24"]
 }
 
 resource "azurerm_subnet" "tfappvnet" {
   name                 = "app-subnet"
   virtual_network_name = azurerm_virtual_network.tfvnet.name
   resource_group_name  = azurerm_resource_group.tfrg.name
-  address_prefix       = "10.0.2.0/24"
+  address_prefixes     = ["10.0.2.0/24"]
 }
 
 resource "azurerm_subnet" "tfjboxvnet" {
   name                 = "jbox-subnet"
   virtual_network_name = azurerm_virtual_network.tfvnet.name
   resource_group_name  = azurerm_resource_group.tfrg.name
-  address_prefix       = "10.0.3.0/24"
+  address_prefixes     = ["10.0.3.0/24"]
 }
 
 /*
@@ -68,8 +69,8 @@ resource "azurerm_subnet_route_table_association" "tfappvnet" {
 }
 
 resource "azurerm_route_table" "nattable" {
-  name                = "${var.prefix}-natroutetable"
-  location            = var.location
+  name                = "${var.resource.prefix}-natroutetable"
+  location            = var.resource.location
   resource_group_name = azurerm_resource_group.tfrg.name
 
   route {

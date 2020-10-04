@@ -1,6 +1,6 @@
 # README
 
-> Revised for _Terraform AzureRM v2.1_
+> Revised for _Terraform AzureRM v2.30_
 
 ## Sample architecture
 

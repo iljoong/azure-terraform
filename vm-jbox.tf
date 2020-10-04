@@ -1,7 +1,7 @@
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "tfjboxnsg" {
-  name                = "${var.prefix}-jboxnsg"
-  location            = var.location
+  name                = "${var.resource.prefix}-jboxnsg"
+  location            = var.resource.location
   resource_group_name = azurerm_resource_group.tfrg.name
 
   security_rule {
@@ -17,38 +17,38 @@ resource "azurerm_network_security_group" "tfjboxnsg" {
   }
 
   tags = {
-    environment = var.tag
+    environment = var.resource.tag
   }
 }
 
 # Create public IPs
 resource "azurerm_public_ip" "tfjboxip" {
-  name                = "${var.prefix}-jboxip"
-  location            = var.location
+  name                = "${var.resource.prefix}-jboxip"
+  location            = var.resource.location
   resource_group_name = azurerm_resource_group.tfrg.name
   allocation_method   = "Static"
 
   tags = {
-    environment = var.tag
+    environment = var.resource.tag
   }
 }
 
 # Create network interface
 resource "azurerm_network_interface" "tfjboxnic" {
-  name                      = "${var.prefix}-jboxnic"
-  location                  = var.location
+  name                      = "${var.resource.prefix}-jboxnic"
+  location                  = var.resource.location
   resource_group_name       = azurerm_resource_group.tfrg.name
   #-network_security_group_id = azurerm_network_security_group.tfjboxnsg.id
 
   ip_configuration {
-    name                          = "${var.prefix}-jboxnic-conf"
+    name                          = "${var.resource.prefix}-jboxnic-conf"
     subnet_id                     = azurerm_subnet.tfjboxvnet.id
     private_ip_address_allocation = "dynamic"
     public_ip_address_id          = azurerm_public_ip.tfjboxip.id
   }
 
   tags = {
-    environment = var.tag
+    environment = var.resource.tag
   }
 }
 
@@ -58,55 +58,33 @@ resource "azurerm_network_interface_security_group_association" "tfjboxnic" {
 }
 
 # Create virtual machine
-resource "azurerm_virtual_machine" "tfjboxvm" {
-  name                  = "${var.prefix}jboxvm"
-  location              = var.location
+resource "azurerm_linux_virtual_machine" "tfjboxvm" {
+  name                  = "${var.resource.prefix}jboxvm"
+  location              = var.resource.location
   resource_group_name   = azurerm_resource_group.tfrg.name
   network_interface_ids = [azurerm_network_interface.tfjboxnic.id]
-  vm_size               = "Standard_DS1_v2"
+  size                  = "Standard_DS1_v2"
 
-  storage_os_disk {
-    name              = "${var.prefix}-ftosdisk-jbox"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Premium_LRS"
+  computer_name  = "tfjobxvm"
+  admin_username = var.vm.admin_username
+  admin_password = var.vm.admin_password
+  disable_password_authentication = false
+
+  os_disk {
+    name                 = "${var.resource.prefix}-ftosdisk-jbox"
+    caching              = "ReadWrite"
+    storage_account_type = "Premium_LRS"
   }
 
-  storage_image_reference {
+  source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "16.04.0-LTS"
+    sku       = "18.04-LTS"
     version   = "latest"
   }
 
-  /*
-  # alternative login method
-  os_profile {
-    computer_name  = "tfjboxvm${count.index}"
-    admin_username = "${var.admin_username}"
-  }
-
-  os_profile_linux_config {
-    disable_password_authentication = true
-
-    ssh_keys {
-      path     = "/home/${var.admin_username}/.ssh/authorized_keys"
-      key_data = "${var.admin_keydata}"
-    }
-  }
-  */
-  os_profile {
-    computer_name  = "tfjobxvm"
-    admin_username = var.admin_username
-    admin_password = var.admin_password
-  }
-
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
-
   tags = {
-    environment = var.tag
+    environment = var.resource.tag
   }
 }
 

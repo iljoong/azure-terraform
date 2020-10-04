@@ -16,7 +16,6 @@ variable vm {
     admin_password = "_add_here_"
     admin_keydata  = "_add_here_"
     size           = "Standard_D2s_v3"
-    appcount       = 1
     webcount       = 1
     osimageuri     = "_add_here_"
   }

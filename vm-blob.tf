@@ -1,12 +1,12 @@
 resource "azurerm_storage_account" "tfblob" {
-  name                     = "${var.prefix}blobacct"
+  name                     = "${var.resource.prefix}blobacct"
   resource_group_name      = azurerm_resource_group.tfrg.name
-  location                 = var.location
+  location                 = var.resource.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
   tags = {
-    environment = var.tag
+    environment = var.resource.tag
   }
 }
 
