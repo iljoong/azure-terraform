@@ -44,7 +44,7 @@ resource "azurerm_network_interface" "tfwebnic" {
 }
 
 resource "azurerm_network_interface_security_group_association" "tfwebnic" {
-  count                     = var.appcount
+  count                     = var.webcount
   network_interface_id      = azurerm_network_interface.tfwebnic[count.index].id
   network_security_group_id = azurerm_network_security_group.tfwebnsg.id
 }
