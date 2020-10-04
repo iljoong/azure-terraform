@@ -1,15 +1,6 @@
-# Custom Script
+# Cloud-Init
 
-This script to configure NAT instance or Web(NGINX)
+__cloud-init__ is used instead of __custom script__ VM Extension for this demo.
 
-## Endcoding
+See [document](https://cloudinit.readthedocs.io/en/latest/) for more information.
 
-For azure vm extension customscript, use `base64` to encode script
-
-```
-cat natscript.sh | base64 -w0
-```
-
-## Reference
-
-https://github.com/Azure/azure-linux-extensions/tree/master/CustomScript

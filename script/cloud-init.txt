@@ -1,0 +1,24 @@
+#cloud-config
+package_upgrade: true
+packages:
+  - nginx
+write_files:
+  - owner: www-data:www-data
+  - path: /var/www/html/index.html
+    content: |
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <title>Azure Terraform Demo (NGINX)</title>
+        <style>
+            body {
+                width: 35em; margin: 0 auto; font-family: Tahoma, Verdana, Arial, sans-serif;
+            }
+        </style>
+        </head>
+        <body>
+        <h1>Azure Terraform Demo (NGINX)</h1>
+        <p>If you see this page, the nginx web server is successfully installed and
+        working. Further configuration is required.</p>
+        </body>
+        </html>

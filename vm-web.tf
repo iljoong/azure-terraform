@@ -1,7 +1,7 @@
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "tfwebnsg" {
-  name                = "${var.prefix}-webnsg"
-  location            = var.location
+  name                = "${var.resource.prefix}-webnsg"
+  location            = var.resource.location
   resource_group_name = azurerm_resource_group.tfrg.name
 
   security_rule {
@@ -17,20 +17,20 @@ resource "azurerm_network_security_group" "tfwebnsg" {
   }
 
   tags = {
-    environment = var.tag
+    environment = var.resource.tag
   }
 }
 
 # Create network interface
 resource "azurerm_network_interface" "tfwebnic" {
-  count                     = var.webcount
-  name                      = "${var.prefix}-webnic${count.index}"
-  location                  = var.location
+  count                     = var.vm.webcount
+  name                      = "${var.resource.prefix}-webnic${count.index}"
+  location                  = var.resource.location
   resource_group_name       = azurerm_resource_group.tfrg.name
   #-network_security_group_id = azurerm_network_security_group.tfwebnsg.id
 
   ip_configuration {
-    name      = "${var.prefix}-webnic-config${count.index}"
+    name      = "${var.resource.prefix}-webnic-config${count.index}"
     subnet_id = azurerm_subnet.tfwebvnet.id
 
     #private_ip_address_allocation = "dynamic"
@@ -39,129 +39,97 @@ resource "azurerm_network_interface" "tfwebnic" {
   }
 
   tags = {
-    environment = var.tag
+    environment = var.resource.tag
   }
 }
 
 resource "azurerm_network_interface_security_group_association" "tfwebnic" {
-  count                     = var.appcount
+  count                     = var.vm.webcount
   network_interface_id      = azurerm_network_interface.tfwebnic[count.index].id
   network_security_group_id = azurerm_network_security_group.tfwebnsg.id
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "tfwebpoolassc" {
-  count                   = var.webcount
+  count                   = var.vm.webcount
   network_interface_id    = element(azurerm_network_interface.tfwebnic.*.id, count.index)
-  ip_configuration_name   = "${var.prefix}-webnic-config${count.index}"
+  ip_configuration_name   = "${var.resource.prefix}-webnic-config${count.index}"
   backend_address_pool_id = azurerm_lb_backend_address_pool.tflbbackendpool.id
 }
 
 resource "azurerm_network_interface_nat_rule_association" "tfnatruleassc" {
-  count                 = var.webcount
+  count                 = var.vm.webcount
   network_interface_id  = element(azurerm_network_interface.tfwebnic.*.id, count.index)
-  ip_configuration_name = "${var.prefix}-webnic-config${count.index}"
+  ip_configuration_name = "${var.resource.prefix}-webnic-config${count.index}"
   nat_rule_id           = element(azurerm_lb_nat_rule.lbnatrule.*.id, count.index)
 }
 
 resource "azurerm_network_interface_application_security_group_association" "tfwebsecassc" {
-  count                         = var.webcount
+  count                         = var.vm.webcount
   network_interface_id          = element(azurerm_network_interface.tfwebnic.*.id, count.index)
-  #-ip_configuration_name         = "${var.prefix}-webnic-config${count.index}"
+  #-ip_configuration_name         = "${var.resource.prefix}-webnic-config${count.index}"
   application_security_group_id = azurerm_application_security_group.tfwebasg.id
 }
 
 resource "azurerm_availability_set" "tfwebavset" {
-  name                        = "${var.prefix}-webavset"
-  location                    = var.location
+  name                        = "${var.resource.prefix}-webavset"
+  location                    = var.resource.location
   resource_group_name         = azurerm_resource_group.tfrg.name
   managed                     = "true"
   platform_fault_domain_count = 2 # default 3 not working in some regions like Korea
 
   tags = {
-    environment = var.tag
+    environment = var.resource.tag
   }
 }
 
 # Create virtual machine
-resource "azurerm_virtual_machine" "tfwebvm" {
-  count                 = var.webcount
-  name                  = "${var.prefix}webvm${count.index}"
-  location              = var.location
+# https://www.terraform.io/docs/providers/azurerm/r/linux_virtual_machine.html
+resource "azurerm_linux_virtual_machine" "tfwebvm" {
+  count                 = var.vm.webcount
+  name                  = "${var.resource.prefix}webvm${count.index}"
+  location              = var.resource.location
   resource_group_name   = azurerm_resource_group.tfrg.name
   network_interface_ids = [azurerm_network_interface.tfwebnic[count.index].id]
-  vm_size               = var.vmsize
+  size                  = var.vm.size
   availability_set_id   = azurerm_availability_set.tfwebavset.id
 
-  storage_os_disk {
-    name              = format("%s-web-%03d-osdisk", var.prefix, count.index + 1)
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Premium_LRS"
+  computer_name  = format("tfwebvm%03d", count.index + 1)
+  admin_username = var.vm.admin_username
+  admin_password = var.vm.admin_password
+  disable_password_authentication = false
+
+  custom_data    = base64encode( file("./script/cloud-init.txt") )
+
+  os_disk {
+    name                 = format("%s-web-%03d-osdisk", var.resource.prefix, count.index + 1)
+    caching              = "ReadWrite"
+    storage_account_type = "Premium_LRS"
   }
 
-  /*
-  # custom image
-  storage_image_reference {
-    id = "${var.osimageuri}"
-  }
-  */
-
-  storage_image_reference {
+  //source_image_id = "${var.vm.osimageuri}"
+  source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "16.04.0-LTS"
+    sku       = "18.04-LTS"
     version   = "latest"
   }
 
-  os_profile {
-    computer_name  = format("tfwebvm%03d", count.index + 1)
-    admin_username = var.admin_username
-    admin_password = var.admin_password
-  }
-
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
-
   tags = {
-    environment = var.tag
-  }
-}
-
-resource "azurerm_virtual_machine_extension" "webvmext" {
-  count                = var.webcount
-  name                 = "webvmext"
-  virtual_machine_id   = azurerm_virtual_machine.tfwebvm[count.index].id
-  #-location             = var.location
-  #-resource_group_name  = azurerm_resource_group.tfrg.name
-  #-virtual_machine_name = azurerm_virtual_machine.tfwebvm[count.index].name
-  publisher            = "Microsoft.Azure.Extensions"
-  type                 = "CustomScript"
-  type_handler_version = "2.0"
-
-  settings = <<SETTINGS
-    {
-        "script": "IyEvYmluL3NoCgpzdWRvIGFwdC1nZXQgdXBkYXRlCnN1ZG8gYXB0LWdldCAteSBpbnN0YWxsIG5naW54Cg=="
-    }
-    SETTINGS
-
-
-  tags = {
-    environment = var.tag
+    environment = var.resource.tag
   }
 }
 
 resource "azurerm_public_ip" "tflbpip" {
-  name                = "${var.prefix}-flbpip"
-  location            = var.location
+  name                = "${var.resource.prefix}-flbpip"
+  location            = var.resource.location
   resource_group_name = azurerm_resource_group.tfrg.name
   allocation_method   = "Static"
   sku                 = "Standard"
 }
 
 resource "azurerm_lb" "tflb" {
-  name                = "${var.prefix}lb"
-  location            = var.location
+  name                = "${var.resource.prefix}lb"
+  location            = var.resource.location
   resource_group_name = azurerm_resource_group.tfrg.name
   sku                 = "Standard"
 
@@ -178,7 +146,7 @@ resource "azurerm_lb_backend_address_pool" "tflbbackendpool" {
 }
 
 resource "azurerm_lb_nat_rule" "lbnatrule" {
-  count                          = var.webcount
+  count                          = var.vm.webcount
   resource_group_name            = azurerm_resource_group.tfrg.name
   loadbalancer_id                = azurerm_lb.tflb.id
   name                           = "ssh-${count.index}"
