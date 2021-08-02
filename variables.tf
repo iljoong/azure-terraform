@@ -25,7 +25,7 @@ variable vm {
 variable resource {
   default = {
     prefix   = "tfdemo"
-    location = "koreasouth"
+    location = "koreacentral"
     tag      = "demo"
   }
 }

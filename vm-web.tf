@@ -125,6 +125,7 @@ resource "azurerm_public_ip" "tflbpip" {
   resource_group_name = azurerm_resource_group.tfrg.name
   allocation_method   = "Static"
   sku                 = "Standard"
+  availability_zone   = "No-Zone"
 }
 
 resource "azurerm_lb" "tflb" {
@@ -140,7 +141,7 @@ resource "azurerm_lb" "tflb" {
 }
 
 resource "azurerm_lb_backend_address_pool" "tflbbackendpool" {
-  resource_group_name = azurerm_resource_group.tfrg.name
+  ##resource_group_name = azurerm_resource_group.tfrg.name
   loadbalancer_id     = azurerm_lb.tflb.id
   name                = "BackEndAddressPool"
 }

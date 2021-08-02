@@ -1,6 +1,7 @@
-# README
+# README 
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Filjoong%2Fazure-terraform&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
-> Revised for _Terraform AzureRM v2.30_
+> Revised for _Terraform AzureRM v2.70.0 with Terraform v1.0.3_
 
 ## Sample architecture
 
@@ -10,6 +11,9 @@ N-Tier architecture service with a jumphost and a NAT instance.
 NAT instance is used for SNATing outbound from VMs in app-subnet.  
 
 Other samples:
+
+> Following samples are not tested with latest Terraform.
+
 - [AKS Sample](./aks/README.md)
 - [PaaS (App Service + SQL DB) samples](https://github.com/iljoong/azure-tf-paas)
 - [IoT samples](https://github.com/iljoong/azure-tf-iot)
