@@ -43,7 +43,7 @@ resource "azurerm_network_interface" "tfjboxnic" {
   ip_configuration {
     name                          = "${var.resource.prefix}-jboxnic-conf"
     subnet_id                     = azurerm_subnet.tfjboxvnet.id
-    private_ip_address_allocation = "dynamic"
+    private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.tfjboxip.id
   }
 

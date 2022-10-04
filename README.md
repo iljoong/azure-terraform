@@ -1,7 +1,7 @@
 # README 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Filjoong%2Fazure-terraform&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
-> Revised for _Terraform AzureRM v2.70.0 with Terraform v1.0.3_
+> Revised for _Terraform AzureRM v3.25.0 with Terraform v1.3.1_
 
 ## Sample architecture
 
@@ -25,6 +25,8 @@ Other samples:
 ### Preparation
 
 Download and install terraform: https://www.terraform.io/downloads.html
+
+> It is recommended to use azure-cli or managed service identity (MSI) for authentication.
 
 Update variables such as `subscription_id` and `admin_name` in [variables.tf](./variables.tf)
 

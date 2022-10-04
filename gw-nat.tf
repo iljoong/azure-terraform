@@ -1,6 +1,6 @@
 # Reference:
 #   https://docs.microsoft.com/en-us/azure/virtual-network/nat-overview
-#   https://www.terraform.io/docs/providers/azurerm/r/nat_gateway.html
+#   https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/nat_gateway
 
 # Create outbound public IP
 resource "azurerm_public_ip" "tfnatip" {
@@ -9,7 +9,7 @@ resource "azurerm_public_ip" "tfnatip" {
   resource_group_name = azurerm_resource_group.tfrg.name
   allocation_method   = "Static"
   sku                 = "Standard"
-  availability_zone   = "No-Zone"
+  #zone                = ["1"]
 }
 
 resource "azurerm_nat_gateway" "tfnatgw" {

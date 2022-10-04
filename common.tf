@@ -4,7 +4,7 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       # use latest
-      #version = "=2.46.0"
+      #version = "=3.25.0"
     }
   }
 }
@@ -14,9 +14,6 @@ provider "azurerm" {
   client_id       = var.azure.client_id
   client_secret   = var.azure.client_secret
   tenant_id       = var.azure.tenant_id*/
-
-  # use latest
-  ##version         = 2.1
 
   features {}
 }

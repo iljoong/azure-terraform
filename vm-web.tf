@@ -125,7 +125,7 @@ resource "azurerm_public_ip" "tflbpip" {
   resource_group_name = azurerm_resource_group.tfrg.name
   allocation_method   = "Static"
   sku                 = "Standard"
-  availability_zone   = "No-Zone"
+  #zones               = ["1"]
 }
 
 resource "azurerm_lb" "tflb" {
@@ -151,32 +151,30 @@ resource "azurerm_lb_nat_rule" "lbnatrule" {
   resource_group_name            = azurerm_resource_group.tfrg.name
   loadbalancer_id                = azurerm_lb.tflb.id
   name                           = "ssh-${count.index}"
-  protocol                       = "tcp"
+  protocol                       = "Tcp"
   frontend_port                  = "5000${count.index + 1}"
   backend_port                   = 22
   frontend_ip_configuration_name = "PublicIPAddress" # "${azurerm_lb.tflb.frontend_ip_configuration.name}" not working
 }
 
 resource "azurerm_lb_rule" "lb_rule" {
-  resource_group_name            = azurerm_resource_group.tfrg.name
   loadbalancer_id                = azurerm_lb.tflb.id
   name                           = "LBRule"
-  protocol                       = "tcp"
+  protocol                       = "Tcp"
   frontend_port                  = 80
   backend_port                   = 80
   frontend_ip_configuration_name = "PublicIPAddress"
   enable_floating_ip             = false
-  backend_address_pool_id        = azurerm_lb_backend_address_pool.tflbbackendpool.id
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.tflbbackendpool.id]
   idle_timeout_in_minutes        = 5
   probe_id                       = azurerm_lb_probe.lb_probe.id
   depends_on                     = [azurerm_lb_probe.lb_probe]
 }
 
 resource "azurerm_lb_probe" "lb_probe" {
-  resource_group_name = azurerm_resource_group.tfrg.name
   loadbalancer_id     = azurerm_lb.tflb.id
   name                = "tcpProbe"
-  protocol            = "tcp"
+  protocol            = "Tcp"
   port                = 80
   interval_in_seconds = 5
   number_of_probes    = 2
