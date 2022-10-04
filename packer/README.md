@@ -1,5 +1,7 @@
 # Packer
 
+> It is recommended to use azure-cli or managed service identity (MSI) for authentication. See packer [document](https://www.packer.io/plugins/builders/azure) for more information.
+
 Create nginx image
 
 ```
