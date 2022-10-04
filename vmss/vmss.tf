@@ -78,19 +78,17 @@ resource "azurerm_lb" "vmss" {
 }
 
 resource "azurerm_lb_rule" "vmss" {
-  resource_group_name            = azurerm_resource_group.tfrg.name
   loadbalancer_id                = azurerm_lb.vmss.id
   name                           = "vmss-lbrule"
   protocol                       = "Tcp"
   frontend_port                  = 80
   backend_port                   = 80
   frontend_ip_configuration_name = "vmss-ipconfig"
-  backend_address_pool_id        = azurerm_lb_backend_address_pool.vmss.id
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.vmss.id]
   probe_id                       = azurerm_lb_probe.vmss.id
 }
 
 resource "azurerm_lb_backend_address_pool" "vmss" {
-  resource_group_name = azurerm_resource_group.tfrg.name
   loadbalancer_id     = azurerm_lb.vmss.id
   name                = "vmss-bepool"
 }
@@ -107,7 +105,6 @@ resource "azurerm_lb_nat_pool" "vmss" {
 }
 
 resource "azurerm_lb_probe" "vmss" {
-  resource_group_name = azurerm_resource_group.tfrg.name
   loadbalancer_id     = azurerm_lb.vmss.id
   name                = "healthprobe"
   protocol            = "Tcp"

@@ -1,37 +1,38 @@
 {
-    "builders": [{
-      "type": "azure-arm",
-  
-      "client_id": "add here",
-      "client_secret": "add here",
-      "tenant_id": "add here",
-      "subscription_id": "add here",
-  
-      "managed_image_resource_group_name": "demo-images",
-      "managed_image_name": "nginximage",
-  
-      "os_type": "Linux",
-      "image_publisher": "Canonical",
-      "image_offer": "UbuntuServer",
-      "image_sku": "16.04-LTS",
-  
-      "azure_tags": {
-          "image": "demo"
-      },
-  
-      "location": "koreasouth",
-      "vm_size": "Standard_D1_v2"
-    }],
-    "provisioners": [{
-      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
-      "inline": [
-        "apt-get update",
-        "apt-get upgrade -y",
-        "apt-get -y install nginx",
-  
-        "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
-      ],
-      "inline_shebang": "/bin/sh -x",
-      "type": "shell"
-    }]
-  }
+  "variables": {
+    "rgname": "test-images",
+    "imagename": "nximg001"
+  },
+  "builders": [{
+    "type": "azure-arm",
+
+    "use_azure_cli_auth": true,
+
+    "managed_image_resource_group_name": "{{user `rgname`}}",
+    "managed_image_name": "{{user `imagename`}}",
+
+    "os_type": "Linux",
+    "image_publisher": "Canonical",
+    "image_offer": "UbuntuServer",
+    "image_sku": "18.04-LTS",
+
+    "azure_tags": {
+        "image": "demo"
+    },
+
+    "location": "koreacentral",
+    "vm_size": "Standard_D2as_v4"
+  }],
+  "provisioners": [{
+    "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
+    "inline": [
+      "apt-get update",
+      "apt-get upgrade -y",
+      "apt-get -y install nginx",
+
+      "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
+    ],
+    "inline_shebang": "/bin/sh -x",
+    "type": "shell"
+  }]
+}
